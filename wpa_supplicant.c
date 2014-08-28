@@ -105,6 +105,7 @@ const char* conn_ssid = "New AP";
 //const char* conn_ssid = "aibo";
 //const char* password = "aiboaibo";
 const char* password = "1234567899";
+const char* interface = "wlan0";
 
 extern int wpa_debug_level;
 extern int wpa_debug_show_keys;
@@ -1722,16 +1723,9 @@ static struct wpa_supplicant * wpa_supplicant_alloc(void)
 }
 
 
-static int wpa_supplicant_init_iface(struct wpa_supplicant *wpa_s,
-				     struct wpa_interface *iface)
+static int wpa_supplicant_init_iface(struct wpa_supplicant *wpa_s)
 {
-	wpa_printf(MSG_DEBUG, "Initializing interface '%s' conf '%s' driver "
-		   "'%s' ctrl_interface '%s'", iface->ifname,
-		   iface->confname ? iface->confname : "N/A",
-		   iface->driver ? iface->driver : "default",
-		   iface->ctrl_interface ? iface->ctrl_interface : "N/A");
-
-	if (wpa_supplicant_set_driver(wpa_s, iface->driver) < 0) {
+	if (wpa_supplicant_set_driver(wpa_s, NULL) < 0) {
 		return -1;
 	}
 
@@ -1802,6 +1796,10 @@ static int wpa_supplicant_init_iface(struct wpa_supplicant *wpa_s,
 
 	wpa_s->own_ssid->psk_set = 1;
 
+	strncpy(wpa_s->ifname, interface, strlen(interface));
+
+	return 0;
+
 #if 0
 	if (wpa_s->conf == NULL) {
 		wpa_printf(MSG_ERROR, "\nNo configuration found.");
@@ -1818,9 +1816,6 @@ static int wpa_supplicant_init_iface(struct wpa_supplicant *wpa_s,
 		return -1;
 	}
 #endif
-	strncpy(wpa_s->ifname, iface->ifname, sizeof(wpa_s->ifname));
-
-	return 0;
 }
 
 
@@ -2043,7 +2038,7 @@ struct wpa_supplicant * wpa_supplicant_add_iface(struct wpa_global *global,
 	if (wpa_s == NULL)
 		return NULL;
 
-	if (wpa_supplicant_init_iface(wpa_s, iface) ||
+	if (wpa_supplicant_init_iface(wpa_s) ||
 	    wpa_supplicant_init_iface2(wpa_s,
 				       global->params.wait_for_interface)) {
 		wpa_printf(MSG_DEBUG, "Failed to add interface %s",

@@ -227,9 +227,7 @@ int main(int argc, char *argv[])
 	}
 
 	for (i = 0; exitcode == 0 && i < iface_count; i++) {
-		if ((ifaces[i].confname == NULL &&
-		     ifaces[i].ctrl_interface == NULL) ||
-		    ifaces[i].ifname == NULL) {
+		if (ifaces[i].ifname == NULL) {
 			if (iface_count == 1 && params.ctrl_interface)
 				break;
 			usage();
