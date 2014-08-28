@@ -282,6 +282,7 @@ static int wpa_eapol_set_wep_key(void *ctx, int unicast, int keyidx,
 }
 #endif /* IEEE8021X_EAPOL */
 
+#if 0
 #if defined(IEEE8021X_EAPOL) || !defined(CONFIG_NO_WPA)
 static void wpa_supplicant_set_config_blob(void *ctx,
 					   struct wpa_config_blob *blob)
@@ -298,6 +299,7 @@ wpa_supplicant_get_config_blob(void *ctx, const char *name)
 	return wpa_config_get_blob(wpa_s->conf, name);
 }
 #endif /* defined(IEEE8021X_EAPOL) || !defined(CONFIG_NO_WPA) */
+#endif
 
 
 /* Configure default/group WEP key for static WEP */
@@ -1426,6 +1428,7 @@ static int wpa_supplicant_get_beacon_ie(void *ctx)
  */
 struct wpa_ssid * wpa_supplicant_get_ssid(struct wpa_supplicant *wpa_s)
 {
+#if 0
 	struct wpa_ssid *entry;
 	u8 ssid[MAX_SSID_LEN];
 	int res;
@@ -1456,6 +1459,8 @@ struct wpa_ssid * wpa_supplicant_get_ssid(struct wpa_supplicant *wpa_s)
 	}
 
 	return NULL;
+#endif
+	return wpa_s->own_ssid;
 }
 
 
@@ -1837,8 +1842,8 @@ static int wpa_supplicant_init_eapol(struct wpa_supplicant *wpa_s)
 	ctx->eapol_done_cb = wpa_supplicant_notify_eapol_done;
 	ctx->eapol_send = wpa_supplicant_eapol_send;
 	ctx->set_wep_key = wpa_eapol_set_wep_key;
-	ctx->set_config_blob = wpa_supplicant_set_config_blob;
-	ctx->get_config_blob = wpa_supplicant_get_config_blob;
+	//ctx->set_config_blob = wpa_supplicant_set_config_blob;
+	//ctx->get_config_blob = wpa_supplicant_get_config_blob;
 	//ctx->opensc_engine_path = wpa_s->conf->opensc_engine_path;
 	//ctx->pkcs11_engine_path = wpa_s->conf->pkcs11_engine_path;
 	//ctx->pkcs11_module_path = wpa_s->conf->pkcs11_module_path;
@@ -1882,8 +1887,8 @@ static int wpa_supplicant_init_wpa(struct wpa_supplicant *wpa_s)
 	ctx->cancel_auth_timeout = _wpa_supplicant_cancel_auth_timeout;
 	ctx->add_pmkid = wpa_supplicant_add_pmkid;
 	ctx->remove_pmkid = wpa_supplicant_remove_pmkid;
-	ctx->set_config_blob = wpa_supplicant_set_config_blob;
-	ctx->get_config_blob = wpa_supplicant_get_config_blob;
+	//ctx->set_config_blob = wpa_supplicant_set_config_blob;
+	//ctx->get_config_blob = wpa_supplicant_get_config_blob;
 
 	wpa_s->wpa = wpa_sm_init(ctx);
 	if (wpa_s->wpa == NULL) {

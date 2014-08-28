@@ -170,7 +170,7 @@ struct wpa_supplicant {
 	char ifname[100];
 
 	char *confname;
-	struct wpa_config *conf;
+	//struct wpa_config *conf;
 	int countermeasures;
 	os_time_t last_michael_mic_error;
 	u8 bssid[ETH_ALEN];
