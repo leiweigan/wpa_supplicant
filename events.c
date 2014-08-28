@@ -32,10 +32,11 @@ static int wpa_supplicant_select_config(struct wpa_supplicant *wpa_s)
 {
 	struct wpa_ssid *ssid;
 
-	if (wpa_s->conf->ap_scan == 1 && wpa_s->current_ssid)
-		return 0;
+	//if (wpa_s->conf->ap_scan == 1 && wpa_s->current_ssid)
+	//	return 0;
 
-	ssid = wpa_supplicant_get_ssid(wpa_s);
+	//ssid = wpa_supplicant_get_ssid(wpa_s);
+	ssid = wpa_s->own_ssid;
 	if (ssid == NULL) {
 		wpa_printf(MSG_INFO, "No network configuration found for the "
 			   "current AP");
@@ -385,15 +386,15 @@ static void wpa_supplicant_event_scan_results(struct wpa_supplicant *wpa_s)
 	struct wpa_scan_result *results;
 
 	if (wpa_supplicant_get_scan_results(wpa_s) < 0) {
-		if (wpa_s->conf->ap_scan == 2)
-			return;
+		//if (wpa_s->conf->ap_scan == 2)
+		//	return;
 		wpa_printf(MSG_DEBUG, "Failed to get scan results - try "
 			   "scanning again");
 		wpa_supplicant_req_scan(wpa_s, 1, 0);
 		return;
 	}
-	if (wpa_s->conf->ap_scan == 2)
-		return;
+	//if (wpa_s->conf->ap_scan == 2)
+	//	return;
 	results = wpa_s->scan_results;
 	num = wpa_s->num_scan_results;
 
