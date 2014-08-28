@@ -614,9 +614,10 @@ static void wpa_driver_wext_event_receive(int sock, void *eloop_ctx,
 {
 	char buf[8192];
 	int left;
+	struct nlmsghdr *h;
+#ifdef CONFIG_ENV_LINUX
 	struct sockaddr_nl from;
 	socklen_t fromlen;
-	struct nlmsghdr *h;
 
 	fromlen = sizeof(from);
 	left = recvfrom(sock, buf, sizeof(buf), MSG_DONTWAIT,
@@ -627,6 +628,7 @@ static void wpa_driver_wext_event_receive(int sock, void *eloop_ctx,
 		return;
 	}
 
+#endif
 	h = (struct nlmsghdr *) buf;
 	while (left >= sizeof(*h)) {
 		int len, plen;
@@ -725,6 +727,7 @@ void * wpa_driver_wext_init(void *ctx, const char *ifname)
 	drv->ctx = ctx;
 	strncpy(drv->ifname, ifname, sizeof(drv->ifname));
 
+#ifdef CONFIG_ENV_LINUX
 	drv->ioctl_sock = socket(PF_INET, SOCK_DGRAM, 0);
 	if (drv->ioctl_sock < 0) {
 		perror("socket(PF_INET,SOCK_DGRAM)");
@@ -753,7 +756,7 @@ void * wpa_driver_wext_init(void *ctx, const char *ifname)
 
 	eloop_register_read_sock(s, wpa_driver_wext_event_receive, drv, ctx);
 	drv->event_sock = s;
-
+#endif
 	/*
 	 * Make sure that the driver does not have any obsolete PMKID entries.
 	 */
@@ -814,8 +817,10 @@ void wpa_driver_wext_deinit(void *priv)
 	if (wpa_driver_wext_get_ifflags(drv, &flags) == 0)
 		(void) wpa_driver_wext_set_ifflags(drv, flags & ~IFF_UP);
 
+#ifdef CONFIG_ENV_LINUX 
 	close(drv->event_sock);
 	close(drv->ioctl_sock);
+#endif
 	free(drv->assoc_req_ies);
 	free(drv->assoc_resp_ies);
 	free(drv);

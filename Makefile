@@ -463,7 +463,9 @@ OBJS += aes_wrap.o
 endif
 
 ifndef CONFIG_MAIN
-CONFIG_MAIN=main_none
+CONFIG_MAIN=main
+
+CFLAGS += -DCONFIG_ENV_LINUX
 endif
 
 OBJS += wpa_supplicant.o events.o

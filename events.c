@@ -398,6 +398,7 @@ static void wpa_supplicant_event_scan_results(struct wpa_supplicant *wpa_s)
 	num = wpa_s->num_scan_results;
 
 	while (selected == NULL) {
+#if 0
 		for (prio = 0; prio < wpa_s->conf->num_prio; prio++) {
 			selected = wpa_supplicant_select_bss(
 				wpa_s, wpa_s->conf->pssid[prio], results, num,
@@ -405,6 +406,10 @@ static void wpa_supplicant_event_scan_results(struct wpa_supplicant *wpa_s)
 			if (selected)
 				break;
 		}
+#endif
+			selected = wpa_supplicant_select_bss(
+				wpa_s, wpa_s->own_ssid, results, num,
+				&ssid);
 
 		if (selected == NULL && wpa_s->blacklist) {
 			wpa_printf(MSG_DEBUG, "No APs found - clear blacklist "

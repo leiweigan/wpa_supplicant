@@ -99,6 +99,12 @@ const char *wpa_supplicant_full_license5 =
 #endif /* CONFIG_NO_STDOUT_DEBUG */
 
 extern struct wpa_driver_ops *wpa_supplicant_drivers[];
+extern struct wpa_driver_ops wpa_driver_wext_ops;
+
+const char* conn_ssid = "New AP";
+//const char* conn_ssid = "aibo";
+//const char* password = "aiboaibo";
+const char* password = "1234567899";
 
 extern int wpa_debug_level;
 extern int wpa_debug_show_keys;
@@ -825,11 +831,13 @@ static void wpa_supplicant_scan(void *eloop_ctx, void *timeout_ctx)
 		}
 		ssid = ssid->next;
 	}
+#if 0
 	if (!enabled && !wpa_s->scan_req) {
 		wpa_printf(MSG_DEBUG, "No enabled networks - do not scan");
 		wpa_supplicant_set_state(wpa_s, WPA_INACTIVE);
 		return;
 	}
+#endif
 	scan_req = wpa_s->scan_req;
 	wpa_s->scan_req = 0;
 
@@ -1501,7 +1509,8 @@ static void _wpa_supplicant_deauthenticate(void *wpa_s, int reason_code)
 
 static struct wpa_ssid * _wpa_supplicant_get_ssid(void *wpa_s)
 {
-	return wpa_supplicant_get_ssid(wpa_s);
+	//return wpa_supplicant_get_ssid(wpa_s);
+	return ((struct wpa_supplicant *)wpa_s)->own_ssid;
 }
 
 
@@ -1539,6 +1548,7 @@ static int wpa_supplicant_remove_pmkid(void *wpa_s,
 static int wpa_supplicant_set_driver(struct wpa_supplicant *wpa_s,
 				     const char *name)
 {
+#if 0
 	int i;
 
 	if (wpa_s == NULL)
@@ -1565,6 +1575,10 @@ static int wpa_supplicant_set_driver(struct wpa_supplicant *wpa_s,
 
 	wpa_printf(MSG_ERROR, "Unsupported driver '%s'.\n", name);
 	return -1;
+#endif
+	wpa_s->driver  = &wpa_driver_wext_ops;
+	wpa_printf(MSG_DEBUG, "DRIVER:set driver wext!!\n");
+	return 0;
 }
 
 
@@ -1713,6 +1727,7 @@ static int wpa_supplicant_init_iface(struct wpa_supplicant *wpa_s,
 	}
 
 	if (iface->confname) {
+#if 0
 #ifdef CONFIG_BACKEND_FILE
 		wpa_s->confname = os_rel2abs_path(iface->confname);
 		if (wpa_s->confname == NULL) {
@@ -1748,9 +1763,35 @@ static int wpa_supplicant_init_iface(struct wpa_supplicant *wpa_s,
 			wpa_s->conf->driver_param =
 				strdup(iface->driver_param);
 		}
-	} else
-		wpa_s->conf = wpa_config_alloc_empty(iface->ctrl_interface,
-						     iface->driver_param);
+#endif
+	} else {}
+	wpa_s->conf = wpa_config_alloc_empty(iface->ctrl_interface,
+			iface->driver_param);
+
+
+	wpa_s->own_ssid = malloc(sizeof(struct wpa_ssid));
+	if (wpa_s->own_ssid == NULL) {
+		wpa_printf(MSG_ERROR, "\nalloc ssid failed..");
+		return -1;
+	}
+
+	wpa_s->own_ssid->proto = WPA_PROTO_RSN;
+	wpa_s->own_ssid->pairwise_cipher = DEFAULT_PAIRWISE;
+	wpa_s->own_ssid->group_cipher = DEFAULT_GROUP;
+	wpa_s->own_ssid->key_mgmt = DEFAULT_KEY_MGMT;
+	wpa_s->own_ssid->eapol_flags = DEFAULT_EAPOL_FLAGS;
+	wpa_s->own_ssid->eap_workaround = DEFAULT_EAP_WORKAROUND;
+
+	wpa_s->own_ssid->ssid = (u8*)conn_ssid;
+	wpa_s->own_ssid->ssid_len = strlen(conn_ssid);
+
+	wpa_s->own_ssid->passphrase  = password;
+
+	pbkdf2_sha1(wpa_s->own_ssid->passphrase, (char *)  wpa_s->own_ssid->ssid,  wpa_s->own_ssid->ssid_len, 4096,  wpa_s->own_ssid->psk, PMK_LEN);
+
+	wpa_hexdump_key(MSG_MSGDUMP, "PSK (from passphrase)",	 wpa_s->own_ssid->psk, PMK_LEN);
+
+	 wpa_s->own_ssid->psk_set = 1;
 
 	if (wpa_s->conf == NULL) {
 		wpa_printf(MSG_ERROR, "\nNo configuration found.");
